@@ -1,6 +1,8 @@
 use starknet::ContractAddress;
 use ToDoApp::Task;
 
+mod tests;
+
 #[starknet::interface]
 trait IToDoApp<TContractState> {
     fn new(ref self: TContractState, description: felt252, completed: felt252) -> Task;
@@ -8,8 +10,6 @@ trait IToDoApp<TContractState> {
     fn set_description(ref self: TContractState, description: felt252);
     fn set_status(ref self: TContractState, completed: felt252) -> Task;
 }
-
-
 
 #[starknet::contract]
 mod ToDoApp {
@@ -25,7 +25,6 @@ mod ToDoApp {
         description: felt252,
         completed: felt252
     }
-
 
     #[external(v0)]
     impl ToDoApp of super::IToDoApp<ContractState>{
