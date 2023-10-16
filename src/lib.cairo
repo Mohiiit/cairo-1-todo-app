@@ -5,7 +5,7 @@ use ToDoApp::Task;
 trait IToDoApp<TContractState> {
     fn new(ref self: TContractState, description: felt252, completed: felt252) -> Task;
     fn get(self: @TContractState) -> Task;
-    fn set(ref self: TContractState, description: felt252);
+    fn set_description(ref self: TContractState, description: felt252);
     fn set_status(ref self: TContractState, completed: felt252) -> Task;
 }
 
@@ -40,7 +40,7 @@ mod ToDoApp {
             self.task.read()
         }
 
-        fn set(ref self: ContractState, description: felt252) {
+        fn set_description(ref self: ContractState, description: felt252) {
             let curr_task = self.task.read();
             let completed = curr_task.completed;
             let new_task = Task {description, completed};
