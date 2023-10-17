@@ -7,7 +7,7 @@ if [ ! -d "$DIRECTORY" ]; then
     exit 1
 fi
 
-JSON_FILE=$(find "$DIRECTORY" -type f -name "*.json" | head -n 1)
+JSON_FILE=$(find "$DIRECTORY" -type f -name "*sierra.json" | head -n 1)
 
 if [ -z "$JSON_FILE" ]; then
     echo "No JSON files found in $DIRECTORY"
