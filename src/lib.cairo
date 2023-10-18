@@ -4,6 +4,7 @@ use alexandria_storage::list::{List, ListTrait};
 
 use alexandria_data_structures::queue;
 
+#[cfg(test)]
 mod tests;
 
 #[starknet::interface]
@@ -34,7 +35,6 @@ mod ToDoApp {
 
     #[derive(Copy, Drop, Serde, starknet::Store)]
     struct Task {
-        owner: ContractAddress,
         description: felt252,
         status: felt252
     }
@@ -43,7 +43,7 @@ mod ToDoApp {
     impl ToDoApp of super::IToDoApp<ContractState> {
         fn addTask(ref self: ContractState, description: felt252, status: felt252) -> bool {
             let owner = get_caller_address();
-            let new_task = Task { owner, description, status };
+            let new_task = Task { description, status };
             let mut curr_id = self.id.read() + 1;
             self.id.write(curr_id);
             self.tasks.write(curr_id, new_task);
@@ -111,6 +111,9 @@ mod ToDoApp {
 
             if (task_index_wrapped.is_some()) {
                 let task_index = task_index_wrapped.unwrap();
+                let task_index_u128: u128 = task_index.into();
+                let new_task = Task { description: 'task_deleted', status: 'task_deleted' };
+                self.tasks.write(task_index_u128, new_task);
                 user_tasks_id.set(task_index, 0);
                 self.users.write(owner, user_tasks_id);
                 return true;
