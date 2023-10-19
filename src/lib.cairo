@@ -4,6 +4,7 @@ use alexandria_storage::list::{List, ListTrait};
 
 use alexandria_data_structures::queue;
 
+#[cfg(test)]
 mod tests;
 
 #[starknet::interface]
@@ -34,7 +35,6 @@ mod ToDoApp {
 
     #[derive(Copy, Drop, Serde, starknet::Store)]
     struct Task {
-        owner: ContractAddress,
         description: felt252,
         status: felt252
     }
@@ -42,13 +42,19 @@ mod ToDoApp {
     #[external(v0)]
     impl ToDoApp of super::IToDoApp<ContractState> {
         fn addTask(ref self: ContractState, description: felt252, status: felt252) -> bool {
+            assert(description!='' , 'should not be empty');
+            assert(status!='', 'should not be empty');
+            assert(description!='task_deleted', 'should not be task_deleted');
+            assert(status!='task_deleted', 'should not be task_deleted');
+            
             let owner = get_caller_address();
-            let new_task = Task { owner, description, status };
+            let new_task = Task { description, status };
+            let mut users = self.users.read(owner);
             let mut curr_id = self.id.read() + 1;
+
             self.id.write(curr_id);
             self.tasks.write(curr_id, new_task);
-            let mut users = self.users.read(owner);
-            let new_entry = users.append(curr_id);
+            users.append(curr_id);
             self.users.write(owner, users);
             true
         }
@@ -111,6 +117,8 @@ mod ToDoApp {
 
             if (task_index_wrapped.is_some()) {
                 let task_index = task_index_wrapped.unwrap();
+                let new_task = Task { description: 'task_deleted', status: 'task_deleted' };
+                self.tasks.write(id, new_task);
                 user_tasks_id.set(task_index, 0);
                 self.users.write(owner, user_tasks_id);
                 return true;
